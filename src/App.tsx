@@ -86,8 +86,6 @@ const COUNTRY_ISO_MAP: Record<string, string> = {
   예멘: "YE",
   예맨: "YE", // 오타/표기 변형 대응
 
-  예맨: "YE", // 오타/표기 변형 대응
-
   르완다: "RW",
   우간다: "UG",
   파나마: "PA",
@@ -105,7 +103,9 @@ function normalizeCountry(raw: string): string {
 
 // ===== 수동 단가 키 생성 =====
 const makePriceKey = (group: string, country: string, name: string) =>
-  `${gro// ===== Optional self-tests (안전 모드) =====
+  `${group}__${country}__${name}`;
+
+// ===== Optional self-tests (안전 모드) =====
 // - Vercel `tsc -b`에서도 깨지지 않게 `import.meta.env`를 사용하지 않습니다.
 // - 필요할 때만 URL에 `?bb_selftest=1`을 붙여 실행하세요.
 function runSelfTests() {
@@ -129,7 +129,7 @@ try {
   // ignore
 }
 
-// ===== 메인 컴포넌트 =====.get("bb_selftest") === "1") runSelfTe
+// ===== 메인 컴포넌트 =====
 export default function AutoOrderAppV15_3() {
   const [step, setStep] = useState(1);
   const [client, setClient] = useState("");
@@ -326,7 +326,7 @@ export default function AutoOrderAppV15_3() {
 
     setMessage(msgLines.join("
 "));
-  }, [cart, noteType, clie);
+  }, [cart, noteType, client, sender, smallPack, sameDay]);
 
   // ===== 최근 저장 유틸 =====
   const pushRecentClient = useCallback((clientName: string) => {
