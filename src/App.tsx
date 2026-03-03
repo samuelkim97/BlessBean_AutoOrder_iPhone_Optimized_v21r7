@@ -33,8 +33,8 @@ type CartItem = {
   priceGroup: string;
 };
 
-type SalesPerson = "김대용" | "최운호" | "김용준" | "이신호";
-const SALESPEOPLE: SalesPerson[] = ["김대용", "최운호", "김용준", "이신호"];
+type SalesPerson = "김대용" | "최운호" | "김용준" | "이신호" | "전진혁";
+const SALESPEOPLE: SalesPerson[] = ["김대용", "최운호", "김용준", "이신호", "전진혁"];
 
 type ClientHistoryItem = { name: string; lastUsedAt: number };
 
@@ -297,11 +297,30 @@ export default function AutoOrderAppV15_3() {
         ? "\n\n카드 결제 링크 요청 드립니다."
         : "";
 
-    const smallPackText = smallPack ? "\n\n*5kg 소분 출고 요청" : "";
-    const sameDayText = sameDay ? "\n\n*금일 출고 요청" : "";
+    const smallPackText = smallPack ? "
+
+*5kg 소분 출고 요청" : "";
+    const sameDayText = sameDay ? "
+
+*금일 출고 요청" : "";
+
+    const extraNotice = "
+
+* 14시 전 입금시 당일출고
+* 입금 확인문자 부탁드립니다";
 
     setMessage(
-      `안녕하세요.\n바른생각\n다른커피\n블레스빈 ${sender}입니다.\n요청하신 단가 안내드립니다.\n\n${client}\n\n${lines}\n\n총 금액 ${total.toLocaleString()}원${smallPackText}${sameDayText}${note}`
+      `안녕하세요.
+바른생각
+다른커피
+블레스빈 ${sender}입니다.
+요청하신 단가 안내드립니다.
+
+${client}
+
+${lines}
+
+총 금액 ${total.toLocaleString()}원${smallPackText}${sameDayText}${extraNotice}${note}`
     );
   }, [cart, noteType, client, sender, smallPack, sameDay]);
 
