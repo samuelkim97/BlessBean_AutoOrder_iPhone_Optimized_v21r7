@@ -79,8 +79,6 @@ const COUNTRY_ALIAS_TO_ISO2: Record<string, string> = {
   페루: "PE",
   Peru: "PE",
 
-  예맨: "YM",
-
   에콰도르: "EC",
   Ecuador: "EC",
 
@@ -643,6 +641,7 @@ export default function App() {
     const footerLines: string[] = [`총 금액 ${total.toLocaleString()}원`];
     if (smallPack) footerLines.push("*5kg 소분 출고 요청");
     if (sameDay) footerLines.push("*금일 출고 요청");
+    footerLines.push("");
     footerLines.push(...extraNoticeLines);
     if (noteLines.length) footerLines.push("", ...noteLines);
 
