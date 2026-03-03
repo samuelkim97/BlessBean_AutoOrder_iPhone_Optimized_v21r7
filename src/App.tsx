@@ -84,6 +84,10 @@ const COUNTRY_ISO_MAP: Record<string, string> = {
   페루: "PE",
   파푸아뉴기니: "PG",
   예멘: "YE",
+  예맨: "YE", // 오타/표기 변형 대응
+
+  예맨: "YE", // 오타/표기 변형 대응
+
   르완다: "RW",
   우간다: "UG",
   파나마: "PA",
@@ -101,36 +105,31 @@ function normalizeCountry(raw: string): string {
 
 // ===== 수동 단가 키 생성 =====
 const makePriceKey = (group: string, country: string, name: string) =>
-  `${group}__${country}__${name}`;
-
-// ===== Dev sanity tests (Vercel/GitHub에서도 안전: DEV에서만 실행) =====
-function devAssert(cond: unknown, msg: string) {
-  if (!cond) throw new Error(`DevAssert: ${msg}`);
-}
-
-function runDevSelfTests() {
+  `${gro// ===== Optional self-tests (안전 모드) =====
+// - Vercel `tsc -b`에서도 깨지지 않게 `import.meta.env`를 사용하지 않습니다.
+// - 필요할 때만 URL에 `?bb_selftest=1`을 붙여 실행하세요.
+function runSelfTests() {
   // normalizeCountry
-  devAssert(normalizeCountry("브라질") === "BR", "normalizeCountry should map KR name to ISO");
-  devAssert(normalizeCountry("  에티오피아 ") === "ET", "normalizeCountry should trim");
-  // makePriceKey
-  devAssert(
-    makePriceKey("(1)", "BR", "Santos") === "(1)__BR__Santos",
-    "makePriceKey should join parts"
-  );
-}
+  if (normalizeCountry("브라질") !== "BR") throw new Error("SelfTest: normalizeCountry 브라질");
+  if (normalizeCountry("  에티오피아 ") !== "ET") throw new Error("SelfTest: normalizeCountry trim");
+  if (normalizeCountry("예맨") !== "YE") throw new Error("SelfTest: normalizeCountry 예맨");
 
-if (import.meta.env?.DEV) {
-  // eslint-disable-next-line no-console
-  try {
-    runDevSelfTests();
-  } catch (e) {
-    // dev 환경에서만 노출
-    // eslint-disable-next-line no-console
-    console.error(e);
+  // makePriceKey
+  if (makePriceKey("(1)", "BR", "Santos") !== "(1)__BR__Santos") {
+    throw new Error("SelfTest: makePriceKey");
   }
 }
 
-// ===== 메인 컴포넌트 =====
+try {
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("bb_selftest") === "1") runSelfTests();
+  }
+} catch {
+  // ignore
+}
+
+// ===== 메인 컴포넌트 =====.get("bb_selftest") === "1") runSelfTe
 export default function AutoOrderAppV15_3() {
   const [step, setStep] = useState(1);
   const [client, setClient] = useState("");
@@ -283,46 +282,51 @@ export default function AutoOrderAppV15_3() {
   // ===== 최종 문구 생성 =====
   useEffect(() => {
     const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const lines = cart
+
+    const orderLines = cart
       .filter((i) => i.quantity > 0)
-      .map(
-        (i) => `${i.country} ${i.name} ${i.quantity}kg * ${i.price.toLocaleString()}원`
-      )
-      .join("\n");
+      .map((i) => `${i.country} ${i.name} ${i.quantity}kg * ${i.price.toLocaleString()}원`);
 
-    const note =
+    // noteType에 따른 추가 안내 문구(기존 동작 유지)
+    const noteLines: string[] =
       noteType === "account"
-        ? "\n\n계좌번호 1006-901-483313 우리은행 블레스빈\n* 입금 확인 문자 부탁드립니다."
+        ? [
+            "계좌번호 1006-901-483313 우리은행 블레스빈",
+            "* 입금 확인 문자 부탁드립니다.",
+          ]
         : noteType === "card"
-        ? "\n\n카드 결제 링크 요청 드립니다."
-        : "";
+        ? ["카드 결제 링크 요청 드립니다."]
+        : [];
 
-    const smallPackText = smallPack ? "
+    // 항상 들어갈 공지(요청 반영)
+    const extraNoticeLines = [
+      "* 14시 전 입금시 당일출고",
+      "* 입금 확인문자 부탁드립니다",
+    ];
 
-*5kg 소분 출고 요청" : "";
-    const sameDayText = sameDay ? "
+    const footerLines: string[] = [`총 금액 ${total.toLocaleString()}원`];
+    if (smallPack) footerLines.push("*5kg 소분 출고 요청");
+    if (sameDay) footerLines.push("*금일 출고 요청");
+    footerLines.push(...extraNoticeLines);
+    if (noteLines.length) footerLines.push("", ...noteLines);
 
-*금일 출고 요청" : "";
+    const msgLines: string[] = [
+      "안녕하세요.",
+      "바른생각",
+      "다른커피",
+      `블레스빈 ${sender}입니다.`,
+      "요청하신 단가 안내드립니다.",
+      "",
+      client,
+      "",
+      ...orderLines,
+      "",
+      ...footerLines,
+    ];
 
-    const extraNotice = "
-
-* 14시 전 입금시 당일출고
-* 입금 확인문자 부탁드립니다";
-
-    setMessage(
-      `안녕하세요.
-바른생각
-다른커피
-블레스빈 ${sender}입니다.
-요청하신 단가 안내드립니다.
-
-${client}
-
-${lines}
-
-총 금액 ${total.toLocaleString()}원${smallPackText}${sameDayText}${extraNotice}${note}`
-    );
-  }, [cart, noteType, client, sender, smallPack, sameDay]);
+    setMessage(msgLines.join("
+"));
+  }, [cart, noteType, clie);
 
   // ===== 최근 저장 유틸 =====
   const pushRecentClient = useCallback((clientName: string) => {
