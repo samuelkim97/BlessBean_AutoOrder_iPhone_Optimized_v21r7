@@ -35,8 +35,8 @@ type CartItem = {
   priceGroup: string;
 };
 
-type SalesPerson = "김대용" | "최운호" | "김용준" | "이신호" | "전진혁";
-const SALESPEOPLE: SalesPerson[] = ["김대용", "최운호", "김용준", "이신호", "전진혁"];
+type SalesPerson = "김대용" | "최운호" | "김용준" | "이민규" | "전진혁";
+const SALESPEOPLE: SalesPerson[] = ["김대용", "최운호", "김용준", "이민규", "전진혁"];
 
 type ClientHistoryItem = { name: string; lastUsedAt: number };
 
